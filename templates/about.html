@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About & Model Architecture | AgriPrice AI</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="bg-agro-pattern">
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-agro sticky-top py-3">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark fs-5" href="{{ url_for('index') }}">
+        <div class="brand-icon">
+          <i class="bi bi-tree-fill"></i>
+        </div>
+        <span>AgriPrice <span class="text-success">AI</span></span>
+      </a>
+      <div class="d-flex align-items-center gap-2">
+        <a href="{{ url_for('chatbot_page') }}" class="btn btn-sm btn-outline-success rounded-pill px-3">
+          <i class="bi bi-chat-dots-fill me-1"></i> Kisan Chatbot
+        </a>
+        <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+          <i class="bi bi-house me-1"></i> Predictor Home
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container my-5">
+    
+    <!-- Title Header -->
+    <div class="text-center mb-5">
+      <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold mb-2">
+        <i class="bi bi-journal-code me-1"></i> Pan-India Machine Learning Architecture & Methodology
+      </span>
+      <h1 class="display-6 fw-extrabold text-dark">System Architecture & Model Evaluation</h1>
+      <p class="text-muted mx-auto" style="max-width: 650px;">
+        Comprehensive overview of data preprocessing, feature engineering, machine learning pipelines, and conversational AI for Crop Price Prediction across Indian States.
+      </p>
+    </div>
+
+    <!-- Comparative Model Metrics -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-6">
+        <div class="agro-card p-4 border-success border-2 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold mb-0 text-success">
+              <i class="bi bi-check-circle-fill me-2"></i>Random Forest Regressor
+            </h4>
+            <span class="badge bg-success text-white px-2 py-1">Selected Best Model</span>
+          </div>
+          <p class="small text-muted mb-4">
+            Ensemble of 300 decision trees trained on 9,600 Pan-India market records. Accurately models non-linear interactions between monsoon rain anomalies and seasonal harvest arrival cycles.
+          </p>
+          <div class="row g-2 text-center">
+            <div class="col-4">
+              <div class="p-3 bg-light rounded border">
+                <div class="small text-muted">R² Score</div>
+                <div class="fs-4 fw-bold text-success">{{ (metrics['random_forest']['r2'] * 100) | round(2) }}%</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-3 bg-light rounded border">
+                <div class="small text-muted">RMSE</div>
+                <div class="fs-4 fw-bold text-dark">₹{{ metrics['random_forest']['rmse'] }}</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-3 bg-light rounded border">
+                <div class="small text-muted">MAE</div>
+                <div class="fs-4 fw-bold text-dark">₹{{ metrics['random_forest']['mae'] }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="agro-card p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold mb-0 text-secondary">
+              <i class="bi bi-speedometer2 me-2"></i>AdaBoost Regressor
+            </h4>
+            <span class="badge bg-light text-muted border px-2 py-1">Comparative Baseline</span>
+          </div>
+          <p class="small text-muted mb-4">
+            Adaptive boosting algorithm used for comparative bench-marking against the Random Forest architecture.
+          </p>
+          <div class="row g-2 text-center">
+            <div class="col-4">
+              <div class="p-3 bg-light rounded border">
+                <div class="small text-muted">R² Score</div>
+                <div class="fs-4 fw-bold text-secondary">{{ (metrics['adaboost']['r2'] * 100) | round(2) }}%</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-3 bg-light rounded border">
+                <div class="small text-muted">RMSE</div>
+                <div class="fs-4 fw-bold text-dark">₹{{ metrics['adaboost']['rmse'] }}</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="p-3 bg-light rounded border">
+                <div class="small text-muted">MAE</div>
+                <div class="fs-4 fw-bold text-dark">₹{{ metrics['adaboost']['mae'] }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Supported States & Crops -->
+    <div class="agro-card p-4 p-md-5 mb-5">
+      <h3 class="fw-bold mb-3 text-dark">
+        <i class="bi bi-geo-alt-fill text-danger me-2"></i>Covered States of India & Major Mandis
+      </h3>
+      <p class="text-muted small mb-4">
+        10 key agricultural states representing major agricultural output zones in India:
+      </p>
+
+      <div class="row g-3">
+        {% for state, data in locations.items() %}
+        <div class="col-md-6">
+          <div class="p-3 rounded bg-light border">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <strong class="text-dark">{{ state }}</strong>
+              <span class="badge bg-white text-muted border small">{{ data['zone'] }}</span>
+            </div>
+            <div class="small text-muted mb-1">
+              <i class="bi bi-shop me-1 text-primary"></i> <strong>Key Mandi:</strong> {{ data['mandi'] }}
+            </div>
+            <div class="extra-small text-muted" style="font-size:0.8rem;">
+              <i class="bi bi-flower1 me-1 text-success"></i> <strong>Major Crops:</strong> {{ data['notable_crops'] }}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- REST API Endpoints Guide -->
+    <div class="agro-card p-4 p-md-5 mb-5">
+      <h3 class="fw-bold mb-3 text-dark">
+        <i class="bi bi-code-slash text-primary me-2"></i>Developer REST API Reference
+      </h3>
+      <p class="text-muted small mb-4">
+        The application exposes programmatic JSON endpoints for mobile apps and conversational integrations:
+      </p>
+
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle small">
+          <thead class="table-light">
+            <tr>
+              <th>Method</th>
+              <th>Endpoint</th>
+              <th>Description</th>
+              <th>Sample Response</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge bg-primary">POST</span></td>
+              <td><code>/api/predict</code></td>
+              <td>Submit JSON with crop, Indian State, rainfall, temperature, humidity to get 12-month projections.</td>
+              <td><code>{"success": true, "kpis": {...}, "forecast": [...]}</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-info text-dark">POST</span></td>
+              <td><code>/api/chat</code></td>
+              <td>Chatbot conversational endpoint accepting natural language questions about prices, storage, and MSP.</td>
+              <td><code>{"reply": "...", "suggestions": [...]}</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-success">GET</span></td>
+              <td><code>/api/crops</code></td>
+              <td>Returns supported crops (Potato, Onion, Pulses, etc.).</td>
+              <td><code>{"crops": ["Potato", "Onion", "Pulses", ...]}</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-success">GET</span></td>
+              <td><code>/api/locations</code></td>
+              <td>Returns Indian States, default climate parameters, and APMC Mandi hubs.</td>
+              <td><code>{"locations": ["Maharashtra", "UP", ...]}</code></td>
+            </tr>
+            <tr>
+              <td><span class="badge bg-success">GET</span></td>
+              <td><code>/api/metrics</code></td>
+              <td>Model performance metrics (R², RMSE, feature importances).</td>
+              <td><code>{"random_forest": {"r2": 0.9874}}</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer-agro mt-auto">
+    <div class="container text-center py-3">
+      <p class="text-muted small mb-1">
+        <strong>AgriPrice AI: Pan-India Crop Price Forecasting & Market Intelligence System</strong> | Major Project
+      </p>
+      <p class="text-muted extra-small mb-0" style="font-size: 0.8rem;">
+        Random Forest Model (R^2 = 98.7\%) | Covering 10 States of India & Essential Food Commodities
+      </p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

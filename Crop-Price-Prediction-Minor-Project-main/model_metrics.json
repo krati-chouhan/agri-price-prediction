@@ -1,0 +1,58 @@
+{
+    "best_model": "Random Forest Regressor",
+    "random_forest": {
+        "r2": 0.9874,
+        "mse": 17.8528,
+        "mae": 2.9595,
+        "rmse": 4.2253
+    },
+    "adaboost": {
+        "r2": 0.9224,
+        "mse": 109.8509,
+        "mae": 8.9021,
+        "rmse": 10.481
+    },
+    "feature_importances": {
+        "Location": 0.0051,
+        "Crop": 0.9101,
+        "Rainfall": 0.0034,
+        "Temperature": 0.0011,
+        "Humidity": 0.0013,
+        "Month": 0.0622,
+        "Year": 0.0167
+    },
+    "dataset_size": 9600,
+    "features": [
+        "Location",
+        "Crop",
+        "Rainfall",
+        "Temperature",
+        "Humidity",
+        "Month",
+        "Year"
+    ],
+    "mappings": {
+        "crops": {
+            "Chilli": 0,
+            "Groundnut": 1,
+            "Maize": 2,
+            "Onion": 3,
+            "Potato": 4,
+            "Pulses": 5,
+            "Rice": 6,
+            "Sugarcane": 7
+        },
+        "locations": {
+            "Andhra Pradesh": 0,
+            "Bihar": 1,
+            "Gujarat": 2,
+            "Karnataka": 3,
+            "Madhya Pradesh": 4,
+            "Maharashtra": 5,
+            "Punjab": 6,
+            "Rajasthan": 7,
+            "Uttar Pradesh": 8,
+            "West Bengal": 9
+        }
+    }
+}

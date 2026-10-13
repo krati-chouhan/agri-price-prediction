@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriPrice AI | Pan-India Crop Price Forecasting & Advisory</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="bg-agro-pattern">
+
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-agro sticky-top py-3">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark fs-5" href="{{ url_for('index') }}">
+        <div class="brand-icon">
+          <i class="bi bi-tree-fill"></i>
+        </div>
+        <span>AgriPrice <span class="text-success">AI</span></span>
+      </a>
+      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-2 pt-2 pt-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active fw-semibold text-success" href="{{ url_for('index') }}">
+              <i class="bi bi-house me-1"></i> Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold text-dark" href="{{ url_for('chatbot_page') }}">
+              <i class="bi bi-chat-dots-fill text-success me-1"></i> Kisan Chatbot
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold text-secondary" href="{{ url_for('about') }}">
+              <i class="bi bi-cpu me-1"></i> Model & Dataset
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold text-secondary" href="/api/health" target="_blank">
+              <i class="bi bi-hdd-network me-1"></i> API
+            </a>
+          </li>
+          <li class="nav-item ms-lg-2">
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-bold">
+              <i class="bi bi-patch-check-fill me-1"></i> Pan-India Edition
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  <div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show agro-card border-0 shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Hero Section -->
+  <section class="container my-4">
+    <div class="hero-banner p-4 p-md-5">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <div class="hero-badge mb-3">
+            <i class="bi bi-stars"></i> Pan-India Agricultural Intelligence
+          </div>
+          <h1 class="display-6 fw-extrabold mb-3">
+            AI Crop Price Forecasting & Market Decision Support
+          </h1>
+          <p class="lead opacity-90 mb-4" style="max-width: 650px;">
+            Forecast monthly farm-gate and APMC Mandi prices for <strong>Potato, Onion, Pulses, Rice, Maize</strong> and more across Indian States using an optimized Random Forest Regressor ($R^2 = 98.7\%$).
+          </p>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge bg-light text-dark px-3 py-2 rounded-pill fw-semibold shadow-sm">
+              <i class="bi bi-check-circle-fill text-success me-1"></i> 98.7% Model R² Score
+            </span>
+            <span class="badge bg-light text-dark px-3 py-2 rounded-pill fw-semibold shadow-sm">
+              <i class="bi bi-robot text-primary me-1"></i> Kisan Sahayak AI Chatbot
+            </span>
+            <span class="badge bg-light text-dark px-3 py-2 rounded-pill fw-semibold shadow-sm">
+              <i class="bi bi-geo-alt-fill text-danger me-1"></i> 10 Indian States
+            </span>
+          </div>
+        </div>
+        <div class="col-lg-4 text-center d-none d-lg-block">
+          <img src="{{ url_for('static', filename='farmer.png') }}" alt="Farmer Advisory" class="img-fluid" style="max-height: 230px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.3));">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content: Estimator Form & Side Analytics -->
+  <main class="container my-4">
+    <div class="row g-4">
+      
+      <!-- Prediction Form Column -->
+      <div class="col-lg-8">
+        <div class="agro-card p-4 p-md-5">
+          <div class="d-flex align-items-center justify-content-between pb-3 mb-4 border-bottom">
+            <div>
+              <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-calculator me-2 text-success"></i>Crop Price Estimation Engine
+              </h3>
+              <p class="text-muted small mb-0">Select your crop, State of India, and seasonal climate conditions</p>
+            </div>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill">
+              Step 1 of 2
+            </span>
+          </div>
+
+          <form action="{{ url_for('predict') }}" method="POST" id="priceForm">
+            
+            <!-- 1. CROP SELECTION -->
+            <div class="mb-4">
+              <label class="form-label-custom">
+                <i class="bi bi-flower1 text-success"></i> 1. Choose Crop
+                <span class="text-danger">*</span>
+              </label>
+              
+              <div class="crop-grid" id="cropGrid">
+                {% for c in crops %}
+                <div class="crop-card-option {% if loop.first %}active{% endif %}" onclick="selectCrop('{{ c }}', this)">
+                  <img src="{{ url_for('static', filename=c + '.png') }}" alt="{{ c }}" onerror="this.src='{{ url_for('static', filename='Rice.png') }}'">
+                  <div class="crop-title">{{ c }}</div>
+                </div>
+                {% endfor %}
+              </div>
+              <input type="hidden" name="crop" id="selectedCrop" value="{{ crops[0] }}" required>
+            </div>
+
+            <!-- 2. STATE OF INDIA SELECTION -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="location" class="form-label-custom mb-0">
+                  <i class="bi bi-geo-alt text-danger"></i> 2. Select State of India
+                  <span class="text-danger">*</span>
+                </label>
+                <button type="button" class="btn btn-sm btn-link text-success text-decoration-none p-0 fw-semibold" onclick="autofillRegionalClimate()">
+                  <i class="bi bi-lightning-charge-fill"></i> Autofill State Climate Norms
+                </button>
+              </div>
+
+              <select class="form-select form-select-custom" id="location" name="location" required onchange="onLocationChange()">
+                {% for loc in locations %}
+                <option value="{{ loc }}" {% if loc == 'Uttar Pradesh' %}selected{% endif %}>
+                  {{ loc }} - {{ location_details[loc]['zone'] }}
+                </option>
+                {% endfor %}
+              </select>
+              
+              <div class="form-text text-muted mt-2 small" id="districtNote">
+                <i class="bi bi-info-circle me-1"></i> Major APMC Mandi Hub: <strong id="mandiName">{{ location_details['Uttar Pradesh']['mandi'] }}</strong>
+              </div>
+            </div>
+
+            <!-- 3. CLIMATE PARAMETERS -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label-custom mb-0">
+                  <i class="bi bi-cloud-sun text-warning"></i> 3. Climate & Environmental Factors
+                </label>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button type="button" class="btn btn-outline-secondary" onclick="setScenario('normal')">🌤️ Normal</button>
+                  <button type="button" class="btn btn-outline-secondary" onclick="setScenario('dry')">☀️ Drought/Dry</button>
+                  <button type="button" class="btn btn-outline-secondary" onclick="setScenario('wet')">🌧️ High Rain</button>
+                </div>
+              </div>
+
+              <div class="row g-3">
+                <!-- Rainfall -->
+                <div class="col-md-4">
+                  <div class="range-slider-wrapper">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="small fw-bold text-dark"><i class="bi bi-droplet-fill text-primary"></i> Rainfall</span>
+                      <span class="badge bg-white text-primary border px-2 py-1" id="rainfallBadge">950 mm</span>
+                    </div>
+                    <input type="range" class="range-slider-custom" min="400" max="2200" step="10" id="rainfallRange" value="950" oninput="syncInputs('rainfall', this.value)">
+                    <div class="d-flex align-items-center gap-1 mt-2">
+                      <input type="number" class="form-control form-control-sm text-center fw-bold" name="rainfall" id="rainfall" min="300" max="2500" value="950" required oninput="syncSliders('rainfall', this.value)">
+                      <span class="small text-muted">mm</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Temperature -->
+                <div class="col-md-4">
+                  <div class="range-slider-wrapper">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="small fw-bold text-dark"><i class="bi bi-thermometer-half text-danger"></i> Temperature</span>
+                      <span class="badge bg-white text-danger border px-2 py-1" id="tempBadge">26.0 °C</span>
+                    </div>
+                    <input type="range" class="range-slider-custom" min="15" max="45" step="0.5" id="tempRange" value="26.0" oninput="syncInputs('temp', this.value)">
+                    <div class="d-flex align-items-center gap-1 mt-2">
+                      <input type="number" step="0.1" class="form-control form-control-sm text-center fw-bold" name="temperature" id="temperature" min="15" max="45" value="26.0" required oninput="syncSliders('temp', this.value)">
+                      <span class="small text-muted">°C</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Humidity -->
+                <div class="col-md-4">
+                  <div class="range-slider-wrapper">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="small fw-bold text-dark"><i class="bi bi-moisture text-info"></i> Humidity</span>
+                      <span class="badge bg-white text-info border px-2 py-1" id="humidityBadge">65 %</span>
+                    </div>
+                    <input type="range" class="range-slider-custom" min="30" max="95" step="1" id="humidityRange" value="65" oninput="syncInputs('humidity', this.value)">
+                    <div class="d-flex align-items-center gap-1 mt-2">
+                      <input type="number" class="form-control form-control-sm text-center fw-bold" name="humidity" id="humidity" min="20" max="100" value="65" required oninput="syncSliders('humidity', this.value)">
+                      <span class="small text-muted">%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-3">
+              <button type="submit" class="btn btn-agro-primary w-100 py-3 fs-5" id="submitBtn">
+                <i class="bi bi-graph-up-arrow me-2"></i> Generate 12-Month Price Forecast
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Right Column: Model Insights & Information -->
+      <div class="col-lg-4">
+        
+        <!-- Chatbot Teaser Banner -->
+        <div class="agro-card p-4 mb-4 border-success border-2 bg-success-subtle">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-robot fs-3 text-success"></i>
+            <div>
+              <h5 class="fw-bold mb-0 text-dark">Kisan Sahayak AI</h5>
+              <span class="small text-success fw-semibold">Interactive Chatbot Online</span>
+            </div>
+          </div>
+          <p class="small text-dark mb-3">
+            Ask questions about Potato, Onion, and Pulses rates, storage techniques, or when to sell your harvest!
+          </p>
+          <a href="{{ url_for('chatbot_page') }}" class="btn btn-sm btn-agro-primary w-100">
+            <i class="bi bi-chat-dots-fill me-1"></i> Open Kisan Chatbot
+          </a>
+        </div>
+
+        <!-- Live Model Quality Card -->
+        <div class="agro-card p-4 mb-4">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="kpi-icon primary mb-0" style="width:36px; height:36px;">
+              <i class="bi bi-award-fill"></i>
+            </div>
+            <div>
+              <h5 class="fw-bold mb-0">Model Accuracy</h5>
+              <span class="small text-muted">Trained on Pan-India Dataset</span>
+            </div>
+          </div>
+          
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <div class="p-2 border rounded bg-light text-center">
+                <div class="small text-muted">R² Score</div>
+                <div class="fs-4 fw-bold text-success">{{ (metrics['random_forest']['r2'] * 100) | round(1) }}%</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="p-2 border rounded bg-light text-center">
+                <div class="small text-muted">RMSE (Error)</div>
+                <div class="fs-4 fw-bold text-dark">₹{{ metrics['random_forest']['rmse'] }}</div>
+              </div>
+            </div>
+          </div>
+
+          <ul class="list-unstyled small mb-0 text-muted">
+            <li class="mb-2 d-flex align-items-center gap-2">
+              <i class="bi bi-check2-circle text-success"></i>
+              <span><strong>Algorithm:</strong> Random Forest (300 estimators)</span>
+            </li>
+            <li class="mb-2 d-flex align-items-center gap-2">
+              <i class="bi bi-check2-circle text-success"></i>
+              <span><strong>Dataset:</strong> 9,600 Pan-India market records</span>
+            </li>
+            <li class="d-flex align-items-center gap-2">
+              <i class="bi bi-check2-circle text-success"></i>
+              <span><strong>Coverage:</strong> 10 Indian States & 8 Major Crops</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Supported Crops Preview -->
+        <div class="agro-card p-4">
+          <h6 class="fw-bold mb-2 text-dark">Key Focus Crops</h6>
+          <p class="small text-muted mb-3">Featured Staples: Potato, Onion, Pulses, Rice, Maize, etc.</p>
+          <div class="d-flex flex-wrap gap-2">
+            {% for c in crops %}
+            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill small">
+              {{ c }}
+            </span>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Floating Chatbot Widget -->
+  <div class="chat-fab" onclick="toggleFloatingChat()" title="Chat with Kisan Sahayak AI">
+    <i class="bi bi-chat-dots-fill"></i>
+    <span class="chat-fab-pulse"></span>
+  </div>
+
+  <div class="chat-popup" id="floatingChatPopup">
+    <div class="chat-popup-header">
+      <div class="d-flex align-items-center gap-2">
+        <div class="bg-white text-success rounded-circle p-1 d-flex align-items-center justify-content-center" style="width:30px; height:30px;">
+          <i class="bi bi-robot fs-6"></i>
+        </div>
+        <div>
+          <h6 class="mb-0 fw-bold fs-6">Kisan Sahayak AI</h6>
+          <span class="extra-small text-white-50" style="font-size:0.75rem;">Online • Agricultural Advisor</span>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-link text-white p-0" onclick="toggleFloatingChat()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="chat-popup-body" id="popupMessages">
+      <div class="d-flex gap-2">
+        <div class="bg-success-subtle text-success rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width:28px; height:28px;">
+          <i class="bi bi-robot"></i>
+        </div>
+        <div class="p-2 rounded bg-white border small shadow-sm">
+          <strong>Namaste!</strong> I am your AI assistant. Ask me about Potato, Onion, or Pulses rates and storage advice!
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-popup-footer">
+      <form onsubmit="handlePopupChatSubmit(event)">
+        <div class="input-group input-group-sm">
+          <input type="text" class="form-control" id="popupInput" placeholder="Ask about potato, onion, pulses..." autocomplete="off">
+          <button class="btn btn-agro-primary" type="submit">
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-agro mt-auto">
+    <div class="container text-center py-3">
+      <p class="text-muted small mb-1">
+        <strong>AgriPrice AI: Pan-India Crop Price Forecasting & Market Intelligence System</strong> | Major Project
+      </p>
+      <p class="text-muted extra-small mb-0" style="font-size: 0.8rem;">
+        Covering Maharashtra, Uttar Pradesh, Madhya Pradesh, Punjab, Karnataka, Gujarat, West Bengal, Rajasthan, Bihar, AP
+      </p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const locationData = {{ location_details | tojson }};
+
+    function selectCrop(cropName, element) {
+      document.getElementById('selectedCrop').value = cropName;
+      document.querySelectorAll('.crop-card-option').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+    }
+
+    function onLocationChange() {
+      const loc = document.getElementById('location').value;
+      if (locationData[loc]) {
+        document.getElementById('mandiName').innerText = locationData[loc].mandi;
+      }
+    }
+
+    function autofillRegionalClimate() {
+      const loc = document.getElementById('location').value;
+      if (locationData[loc]) {
+        const d = locationData[loc];
+        setClimateValues(d.default_rainfall, d.default_temperature, d.default_humidity);
+      }
+    }
+
+    function setScenario(type) {
+      const loc = document.getElementById('location').value;
+      const base = locationData[loc] || { default_rainfall: 950, default_temperature: 26, default_humidity: 65 };
+
+      if (type === 'normal') {
+        setClimateValues(base.default_rainfall, base.default_temperature, base.default_humidity);
+      } else if (type === 'dry') {
+        setClimateValues(Math.round(base.default_rainfall * 0.65), Number((base.default_temperature + 2.5).toFixed(1)), Math.round(base.default_humidity * 0.75));
+      } else if (type === 'wet') {
+        setClimateValues(Math.round(base.default_rainfall * 1.45), Number((base.default_temperature - 1.5).toFixed(1)), Math.min(95, Math.round(base.default_humidity * 1.25)));
+      }
+    }
+
+    function setClimateValues(rain, temp, hum) {
+      document.getElementById('rainfall').value = rain;
+      document.getElementById('rainfallRange').value = rain;
+      document.getElementById('rainfallBadge').innerText = rain + ' mm';
+
+      document.getElementById('temperature').value = temp;
+      document.getElementById('tempRange').value = temp;
+      document.getElementById('tempBadge').innerText = temp + ' °C';
+
+      document.getElementById('humidity').value = hum;
+      document.getElementById('humidityRange').value = hum;
+      document.getElementById('humidityBadge').innerText = hum + ' %';
+    }
+
+    function syncInputs(param, val) {
+      if (param === 'rainfall') {
+        document.getElementById('rainfall').value = val;
+        document.getElementById('rainfallBadge').innerText = val + ' mm';
+      } else if (param === 'temp') {
+        document.getElementById('temperature').value = val;
+        document.getElementById('tempBadge').innerText = val + ' °C';
+      } else if (param === 'humidity') {
+        document.getElementById('humidity').value = val;
+        document.getElementById('humidityBadge').innerText = val + ' %';
+      }
+    }
+
+    function syncSliders(param, val) {
+      if (param === 'rainfall') {
+        document.getElementById('rainfallRange').value = val;
+        document.getElementById('rainfallBadge').innerText = val + ' mm';
+      } else if (param === 'temp') {
+        document.getElementById('tempRange').value = val;
+        document.getElementById('tempBadge').innerText = val + ' °C';
+      } else if (param === 'humidity') {
+        document.getElementById('humidityRange').value = val;
+        document.getElementById('humidityBadge').innerText = val + ' %';
+      }
+    }
+
+    // Floating Chat logic
+    function toggleFloatingChat() {
+      const popup = document.getElementById('floatingChatPopup');
+      popup.classList.toggle('active');
+    }
+
+    async function handlePopupChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('popupInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const body = document.getElementById('popupMessages');
+      
+      // User message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'd-flex justify-content-end';
+      userMsg.innerHTML = `<div class="p-2 rounded bg-success text-white small shadow-sm" style="max-width:80%">${text}</div>`;
+      body.appendChild(userMsg);
+      input.value = '';
+      body.scrollTop = body.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        
+        const botMsg = document.createElement('div');
+        botMsg.className = 'd-flex gap-2';
+        let formatted = data.reply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        botMsg.innerHTML = `
+          <div class="bg-success-subtle text-success rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width:28px; height:28px;">
+            <i class="bi bi-robot"></i>
+          </div>
+          <div class="p-2 rounded bg-white border small shadow-sm" style="max-width:85%">
+            ${formatted}
+          </div>
+        `;
+        body.appendChild(botMsg);
+        body.scrollTop = body.scrollHeight;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      onLocationChange();
+    });
+  </script>
+</body>
+</html>
